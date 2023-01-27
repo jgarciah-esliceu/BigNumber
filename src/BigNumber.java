@@ -68,7 +68,6 @@ class BigNumber {
         if (b.valor.equals(this.valor)) {
             return 0;
         }
-
         return -1;
     }
 
