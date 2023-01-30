@@ -1,19 +1,11 @@
 class BigNumber {
     String valor;
 
-    public static String eliminaZeros(String str) {
-        int i = 0; // Aquesta variable contarà tots els zeros que hi ha a l'esquerra
-        while (i < str.length() && str.charAt(i) == '0') i++;
-
-        StringBuffer num = new StringBuffer(str); // StringBuffer és com un String, a diferència que aquest pot cambiar el seu tamany
-        num.replace(0, i, "");
-        return num.toString();
-    }
-
     // Constructor 1
     public BigNumber(String s) {
-        this.valor = eliminaZeros(s);
-
+        s = s.replaceFirst("^0*", ""); // Reemplaça tots els zero de l'esquerra
+        if (s.isEmpty()) s = "0"; // Si s està buit, li direm que és igual a 0,
+        this.valor = s;
     }
 
     // Constructor 2
@@ -62,18 +54,24 @@ class BigNumber {
     }
 
     // Compara dos BigNumber. Torna 0 si són iguals, -1
-// si el primer és menor i torna 1 si el segon és menor
+    // si el primer és menor i torna 1 si el segon és menor
     public int compareTo(BigNumber other) {
-        BigNumber b = other;
-        if (b.valor.equals(this.valor)) {
-            return 0;
+        if (this.valor.length() == other.valor.length()) {
+            for (int i = 0; i < this.valor.length(); i++) {
+                if (this.valor.charAt(i) > other.valor.charAt(i)) {
+                    return 1;
+                } else if (this.valor.charAt(i) < other.valor.charAt(i))
+                    return -1;
+            } return 0;
+        } else if (this.valor.length() > other.valor.length()) {
+            return 1;
         }
         return -1;
     }
 
     // Torna un String representant el número
     public String toString() {
-        return "";
+        return this.valor;
     }
 
     // Mira si dos objectes BigNumber són iguals
