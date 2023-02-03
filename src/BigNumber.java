@@ -15,14 +15,14 @@ class BigNumber {
 
     // Suma
     BigNumber add(BigNumber other) {
-        if (this.valor.length() > other.valor.length()){
+        if (this.valor.length() > other.valor.length()){ // Afegeix zeros als numeros que siguin de menor longitud
             other.valor = String.format("%0" + this.valor.length() + "d", Integer.valueOf(other.valor));
         } else if (this.valor.length() < other.valor.length()){
             other.valor = String.format("%0" + other.valor.length() + "d", Integer.valueOf(this.valor));
         }
         int n1;
         int n2;
-        int suma;
+        int suma = 0;
         String[] s1 = this.valor.split("");
         String[] s2 = other.valor.split("");
         BigNumber resultat = null;
@@ -31,13 +31,21 @@ class BigNumber {
         for (int i = s1.length - 1; i >= 0; i--) {
             n1 = Integer.parseInt(s1[i]);
             n2 = Integer.parseInt(s2[i]);
+            int meLlevo = suma;
             suma = n1 + n2;
-            if (suma >= 10){
-                int meLlevo = suma/10;
-                t = (suma%10) + t;
-                t = suma + t;
+
+            if (meLlevo >= 10){
+                if (i == 0) {
+                    t = (suma + 1) + t;
+                } else {
+                    t = (suma%10 + 1) + t;
+                }
             } else {
-                t = suma + t;
+                if (i == 0) {
+                    t = suma + t;
+                } else {
+                    t = (suma%10) + t;
+                }
             }
             resultat = new BigNumber(t);
         }
