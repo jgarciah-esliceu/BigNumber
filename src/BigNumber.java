@@ -15,10 +15,15 @@ class BigNumber {
 
     // Suma
     BigNumber add(BigNumber other) {
-        if (this.valor.length() > other.valor.length()){ // Afegeix zeros als numeros que siguin de menor longitud
-            other.valor = String.format("%0" + this.valor.length() + "d", Integer.valueOf(other.valor));
-        } else if (this.valor.length() < other.valor.length()){
-            other.valor = String.format("%0" + other.valor.length() + "d", Integer.valueOf(this.valor));
+        // Afegeix zeros al numero que sigui de menor longitud
+        if (this.valor.length() > other.valor.length()) {
+            for (int i = other.valor.length(); i <= this.valor.length()-1; i++) {
+                other.valor = "0".concat(other.valor);
+            }
+        } else if (this.valor.length() < other.valor.length()) {
+            for (int i = this.valor.length(); i <= other.valor.length()-1; i++) {
+                this.valor = "0".concat(this.valor);
+            }
         }
         int n1;
         int n2;
