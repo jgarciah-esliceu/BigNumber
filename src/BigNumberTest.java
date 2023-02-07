@@ -292,6 +292,9 @@ public class BigNumberTest {
         b1 = new BigNumber("12");
         assertEquals(new BigNumber("1728"), b1.power(3));
 
+        b1 = new BigNumber("7");
+        assertEquals(new BigNumber("2401"), b1.power(4));
+
         b1 = new BigNumber("94838283854322");
         assertEquals(new BigNumber("58862250964954017560693080286616839460677919918460221421949959341474013510211014138680704961715239095635828871828766919938391201667628647424"),
                 b1.power(10));
