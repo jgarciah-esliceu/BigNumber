@@ -15,7 +15,6 @@ class BigNumber {
 
     // Suma
     BigNumber add(BigNumber other) {
-        // Afegeix zeros al numero que sigui de menor longitud
         zerosIzq(other);
         int n1;
         int n2;
@@ -100,72 +99,122 @@ class BigNumber {
 
     // Multiplica
     BigNumber mult(BigNumber other) {
-        zerosIzq(other);
-        BigNumber resultatMultiplicacio = new BigNumber("");
-        BigNumber res = new BigNumber("0");
+        String[] s1 = this.valor.split("");
+        String[] s2 = other.valor.split("");
+        int n1, n2;
+        int[] resultMult = new int[s1.length + s2.length];
 
-        String n1 = this.valor;
-        String n2 = other.valor;
-
-        //Variable "operación" para guardar la operación resultado, variable "meLlevo" para saber cuándo debemos sumar a la posterior operación y el BigNumber "nada"
-        // para guardar todas las sumas de los resultados de las multiplicaciones
-        int operacion = 0;
-        int meLlevo = 0;
-
-        for (int i = 1; i < n2.length() + 1; i++) {
-            //Cada vez que cambiamos de número en la fila de abajo, ponemos el resultado vacío y conseguimos el número el que lo multiplicaremos con
-            // la fila de arriba
-            resultatMultiplicacio.valor = "";
-            String multiplicarN2 = Character.toString(n2.charAt(n2.length() - i));
-
-            //Recorremos la fila de arriba, yendo multiplicando por cada uno de los números de arriba por número que hemos conseguido antes
-            for (int j = 1; j < n1.length() + 1; j++) {
-                //Vamos consiguiendo el número por el que se multiplicara, hasta que termine la fila de arriba (s1)
-                String multiplicarN1 = Character.toString(n1.charAt(n1.length() - j));
-
-                //Y multiplicamos los dos números
-                operacion = Integer.parseInt(multiplicarN1) * Integer.parseInt(multiplicarN2) + meLlevo;
-
-                //Una vez se ha multiplicado se ha de poner la variable nos llevamos a 0
-                meLlevo = 0;
-
-                //Si la operación resultante es menor a 10, querrá decir que no debemos quitarnos resultatMultiplicacio. Simplemente asignamos la operación resultante a la variable "resultatMultiplicacio"
-                if (operacion < 10) {
-                    resultatMultiplicacio.valor += operacion;
-
-                    //mientras j sea menor al tamaño de s1 (fila de arriba), deberemos conseguir la decena y la unidad, e ir quitándonos la decena y guardar la unidad a resultatMultiplicacio
-                } else if (j < n1.length()) {
-                    String seperaDigits = Integer.toString(operacion);
-                    int desena = Character.getNumericValue(seperaDigits.charAt(0));
-                    int unitat = Character.getNumericValue(seperaDigits.charAt(1));
-
-                    resultatMultiplicacio.valor += unitat;
-                    meLlevo = desena;
-                } else { // Si se da el caso de que la operacion es mayor a 10 pero es el ultimo numero, pondremos el resultado le la operacion tal y como esta (ya que es el final
-                    // y no debemos seguir operando)
-                    resultatMultiplicacio.valor += giraResultat(Integer.toString(operacion));
-                }
+        for (int i = s1.length - 1; i >= 0; i--) {
+            for (int j = s2.length - 1; j >= 0; j--) {
+                n1 = Integer.parseInt(s1[i]);
+                n2 = Integer.parseInt(s2[j]);
+                resultMult[i + j + 1] += n1 * n2;
             }
-
-            //Per cada multiplicació que feim, hem d'anar afegint zeros. Per cada operacio que feim afegirem un 0. A més, com hem estat afegint directament el resultat a un string
-            // toca invertir el resultat i ho farem amb giraResultat()
-            resultatMultiplicacio.valor = afegeixZeros(giraResultat(resultatMultiplicacio.valor), i - 1);
-
-            //I anam guardant els resultat de les sumes en res
-            res = resultatMultiplicacio.add(res);
         }
 
-        return res;
+        int meLlevo = 0;
+        for (int i = resultMult.length - 1; i >= 0; i--) {
+            int sum = resultMult[i] + meLlevo;
+            resultMult[i] = sum % 10;
+            meLlevo = sum / 10;
+        }
+
+        StringBuilder multiplicacio = new StringBuilder();
+        int i = 0;
+        while (i < resultMult.length - 1 && resultMult[i] == 0) {
+            i++;
+        }
+
+        for (i = 0; i < resultMult.length; i++) {
+            multiplicacio.append(resultMult[i]);
+        }
+
+        return new BigNumber(multiplicacio.toString());
     }
 
     // Divideix
     BigNumber div(BigNumber other) {
-        return null;
+        if (new BigNumber(this.valor).compareTo(new BigNumber(other.toString())) < 0){
+            return new BigNumber("0");
+        } else if (new BigNumber(this.valor).compareTo(new BigNumber(other.toString())) == 0){
+            return new BigNumber("1");
+        }
+        String res = "";
+        String temp = "";
+        String resMult = "";
+        for (int i = 0; i < this.valor.length() ; i++) {
+            int numero1 = Character.getNumericValue(this.valor.charAt(i));
+            temp += numero1;
+
+            if (new BigNumber(temp).compareTo(other) >= 0){
+                for (int j = 1; j < 11; j++) {
+                    resMult = String.valueOf(other.mult(new BigNumber(String.valueOf(j))));
+
+                    if (new BigNumber(resMult).compareTo(new BigNumber(temp)) > 0){
+                        res += j-1;
+                        temp = String.valueOf(new BigNumber(temp).sub((other.mult(new BigNumber(String.valueOf(j-1))))));
+
+                        break;
+                    }
+                }
+
+            } else {
+                if (res != ""){
+                    res += "0";
+                }
+            }
+        }
+        return new BigNumber(res);
     }
 
     // Arrel quadrada
     BigNumber sqrt() {
-        return null;
+        StringBuilder res = new StringBuilder();
+        BigNumber resto;
+        StringBuilder grup = new StringBuilder();
+        int puntero = 0;
+        boolean primeraVez = true;
+
+        if (this.toString().length() % 2 == 0) {
+            for (int i = 0; i < 2; i++) {
+                grup.append(this.toString().charAt(i));
+                puntero++;
+            }
+        } else {
+            grup.append(this.toString().charAt(0));
+            puntero++;
+        }
+        resto = new BigNumber(grup.toString());
+
+        if (puntero == this.toString().length()) {
+            int grupInt = Integer.parseInt(grup.toString());
+            for (int i = 0; i < 9; i++) {
+                if (i * i > grupInt) {
+                    res.append(i - 1);
+                    break;
+                }
+            }
+        } else {
+            while (puntero < this.toString().length()) {
+                if (primeraVez) {
+                    primeraVez = false;
+                } else {
+                    grup = new StringBuilder(resto.toString());
+                    for (int i = 0; i < 2; i++) {
+                        grup.append(this.toString().charAt(puntero));
+                        puntero++;
+                    }
+                }
+                for (int i = 0; i <= 10; i++) {
+                    if (new BigNumber(new BigNumber(res.toString()).mult(new BigNumber("2")).toString() + i).mult(new BigNumber(Integer.toString(i))).compareTo(new BigNumber(grup.toString())) == 1) {
+                        resto = new BigNumber(grup.toString()).sub(new BigNumber(new BigNumber(res.toString()).mult(new BigNumber("2")).toString() + (i - 1)).mult(new BigNumber(Integer.toString(i - 1))));
+                        res.append(i - 1);
+                        break;
+                    }
+                }
+            }
+        }
+        return new BigNumber(res.toString());
     }
 
     // Potència
@@ -173,8 +222,6 @@ class BigNumber {
         BigNumber res = new BigNumber(this.valor);
         BigNumber base = new BigNumber(this.valor);
 
-        //hacemos un bucle que multiplique el numero n veces.
-        // Ej: 7^4 = 7*7*7*7 = 2401
         for (int i = 1; i < n; i++) {
             res = res.mult(base);
         }
@@ -187,9 +234,6 @@ class BigNumber {
         BigNumber res = new BigNumber("1");
         BigNumber base = new BigNumber(this.valor);
 
-        //Hacemos otro bucle que vaya multiplicando "res" por la variable i.
-        // La variable "i" irá del número hasta uno, bajando uno cada vez que pase el bucle.
-        // Ej: 5 = 5*4*3*2*1 = 120
         for (int i = 1; i < Integer.parseInt(base.valor) + 1; i++) {
             res = res.mult(new BigNumber(Integer.toString(i)));
         }
@@ -199,7 +243,23 @@ class BigNumber {
 
     // MCD. Torna el Màxim comú divisor
     BigNumber mcd(BigNumber other) {
-        return null;
+        BigNumber num1 = new BigNumber(this.valor);
+        BigNumber num2 = new BigNumber(other.valor);
+        BigNumber resto = new BigNumber(num1.valor);
+
+        // Algoritme d'Euclides
+        while (true) {
+            resto = num1.sub(num1.div(num2).mult(num2));
+
+            String t = resto.valor;
+            num1.valor = num2.valor;
+            num2.valor = t;
+
+            if (num1.sub(num1.div(num2).mult(num2)).compareTo(new BigNumber("0")) == 0) {
+                break;
+            }
+        }
+        return resto;
     }
 
     // Compara dos BigNumber. Torna 0 si són iguals, -1
@@ -230,7 +290,7 @@ class BigNumber {
         return false;
     }
 
-    // Funciones propias
+    // Funciones propias //
     private void zerosIzq(BigNumber other) {
         // Afegeix zeros al numero que sigui de menor longitud
         if (this.valor.length() > other.valor.length()) {
@@ -242,20 +302,5 @@ class BigNumber {
                 this.valor = "0".concat(this.valor);
             }
         }
-    }
-
-    //Torna un string amb el string que l'hi passam per parametre totalment girat
-    public String giraResultat(String s) {
-        StringBuilder res = new StringBuilder();
-        for (int i = 1; i < s.length() + 1; i++) {
-            String actualXifra = Character.toString(s.charAt(s.length() - i));
-            res.append(actualXifra);
-        }
-        return res.toString();
-    }
-
-    //Torna un string amb la quantitat de zeros que l'hi indiquem. Aquest zeros s'afegeixen al final del string passat, es a dir, a la dreta.
-    public String afegeixZeros(String s, int quantitatZeros) {
-        return s + "0".repeat(quantitatZeros);
     }
 }
